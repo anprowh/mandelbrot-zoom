@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mandelbrot Zoom</title>
+    <style>
+        #pointer {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: red;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <img alt="Mandelbrot Set" />
+    <div id="pointer"></div>
+    <p id="info"></p>
+</body>
+<script>
+    // you can set target point on image by clicking on it
+    // and zoom in/out by scrolling
+    var img = document.querySelector('img');
+    var pointer = document.querySelector('#pointer');
+    var info = document.querySelector('#info');
+    var zoom = 1;
+    var x = -2.5;
+    var y = -1;
+    var size = 4;
+
+    var pointer_x = x + size/2;
+    var pointer_y = y + size/2;
+
+    function update() {
+        info.innerHTML = 'x: ' + x + ', y: ' + y + ', size: ' + size + ', pointer: ' + pointer_x + ', ' + pointer_y;
+        img.src = '/mandelbrot?x=' + x + '&y=' + y + '&size=' + size + '&iter=500'
+        var rect = img.getBoundingClientRect();
+        var px = (rect.right + rect.left) / 2;
+        var py = (rect.bottom + rect.top) / 2;
+        pointer.style.left = px + 'px';
+        pointer.style.top = py + 'px';
+    }
+
+    update();
+
+    function on_click(e) {
+        var rect = img.getBoundingClientRect();
+        var mouse_x = e.clientX - rect.left;
+        var mouse_y = e.clientY - rect.top;
+        var w = rect.right - rect.left;
+        var h = rect.bottom - rect.top;
+        pointer_x = x + mouse_x/w*size;
+        pointer_y = y + mouse_y/h*size;
+        pointer.style.left = mouse_x + 5 + 'px';
+        pointer.style.top = mouse_y + 5 + 'px';
+    }
+
+    function on_scroll(e) {
+        var delta = e.deltaY;
+        if (delta > 0) {
+            zoom = 1.1;
+        } else {
+            zoom = 0.9;
+        }
+        size *= zoom;
+        x = pointer_x - size/2;
+        y = pointer_y - size/2;
+        update();
+
+    }
+
+    img.addEventListener('click', on_click);
+    img.addEventListener('wheel', on_scroll);
+</script>
+</html>
